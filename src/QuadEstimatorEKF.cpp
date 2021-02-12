@@ -201,9 +201,7 @@ void QuadEstimatorEKF::UpdateFromGPS(V3F pos, V3F vel)
 
 void QuadEstimatorEKF::UpdateFromMag(float magYaw)
 {
-    Eigen::MatrixXf hPrime(1, 7);
-    hPrime.setZero();
-    hPrime(0,6) = 1;
+    Eigen::VectorXf Y(1);
 
     // MAGNETOMETER UPDATE
     // Hints: 
@@ -212,7 +210,29 @@ void QuadEstimatorEKF::UpdateFromMag(float magYaw)
     //    (you don't want to update your yaw the long way around the circle)
     //  - The magnetomer measurement covariance is available in member variable R_Mag
     ////////////////////////////// BEGIN STUDENT CODE ///////////////////////////
+    /**********************************************************************
+     *    set output matrix H
+     *********************************************************************/
+    Eigen::MatrixXf hPrime(1, 7);
+    hPrime.setZero();
+    hPrime(0,6) = 1;
 
+    /**********************************************************************
+     *    Calculate Innovation
+     *********************************************************************/
+    float diff_yaw = magYaw - ekfState(6);
+    diff_yaw = AngleNormF(diff_yaw);
+    Y(0) = diff_yaw;
+
+    /**********************************************************************
+     *    Calculate Kalman Gain
+     *********************************************************************/
+    M K = kalmanFilter::CalculateKalmanGain(ekfCov, hPrime, R_Mag);
+
+    /**********************************************************************
+     *    Update Linear
+     *********************************************************************/
+    kalmanFilter::update(ekfState, ekfCov, Y, hPrime, K);
 
     /////////////////////////////// END STUDENT CODE ////////////////////////////
 }
