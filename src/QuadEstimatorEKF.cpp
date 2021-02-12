@@ -197,6 +197,35 @@ void QuadEstimatorEKF::UpdateFromGPS(V3F pos, V3F vel)
     z(4) = vel.y;
     z(5) = vel.z;
 
+    zFromX(0) = ekfState(0);
+    zFromX(1) = ekfState(1);
+    zFromX(2) = ekfState(2);
+    zFromX(3) = ekfState(3);
+    zFromX(4) = ekfState(4);
+    zFromX(5) = ekfState(5);
+
+    /**********************************************************************
+     *    set output matrix H
+     *********************************************************************/
+    MatrixXf hPrime(6, QUAD_EKF_NUM_STATES);
+    hPrime.setZero();
+    hPrime.topLeftCorner(6 , 6) = M::Identity(6, 6);
+
+    /**********************************************************************
+     *    Calculate Innovation
+     *********************************************************************/
+    Y = z - zFromX;
+
+    /**********************************************************************
+     *    Calculate Kalman Gain
+     *********************************************************************/
+    M K = kalmanFilter::CalculateKalmanGain(ekfCov, hPrime, R_GPS);
+
+    /**********************************************************************
+     *    Update Linear
+     *********************************************************************/
+    kalmanFilter::update(ekfState, ekfCov, Y, hPrime, K);
+
 }
 
 void QuadEstimatorEKF::UpdateFromMag(float magYaw)
