@@ -244,7 +244,7 @@ Thanks to Fotokite for the initial development of the project code and simulator
 ## Write Up:
 # Scenario 1: Sensor noise
 The simulator will generate two log files with GPS and IMU measurements. The task is to process data from these files and calculate the standard deviation(sigma).
-![Scenario 1 - Sensor noise](./images/sc1_sensor_noise.png)
+![Scenario 1 - Sensor noise](images/sc1_sensor_noise.png)
 
 Scenario passed the test, below the standard output:
 ```
@@ -254,7 +254,7 @@ PASS: ABS(Quad.IMU.AX-0.000000) was less than MeasuredStdDev_AccelXY for 69% of 
 
 # Scenario 2: Attitude Estimation
 In this scenario need to include IMU measurements to the result state. This is require to implement a better integration method that uses the current attitude estimate (rollEst, pitchEst and ekfState(6)) to integrate the body rates into new Euler angles. I've used class `Quaternion<float>` with handy methods `FromEuler123_RPY` and `IntegrateBodyRate`.
-![Scenario 2](./images/sc2_att_est.png)
+![Scenario 2](images/sc2_att_est.png)
 ```
 PASS: ABS(Quad.Est.E.MaxEuler) was less than 0.100000 for at least 3.000000 seconds
 ```
@@ -262,15 +262,15 @@ PASS: ABS(Quad.Est.E.MaxEuler) was less than 0.100000 for at least 3.000000 seco
 # Scenario 3: Prediction Step
 The task consist of two parts: implement the prediction step for the EKF and update the covariance matrix and finish the EKF state
 Below the screenshot after implementing the first part
-![Scenario 3](./images/sc3_predict_state.png)
+![Scenario 3](images/sc3_predict_state.png)
 
 Here is a result screenshot after tuning `QPosXYStd`, `QVelXYStd` process parameters in QuadEstimatorEKF.txt
 We can see how sigma growing over time due to the prediction step.
-![Scenario 4](./images/sc3_predict_covar.png)
+![Scenario 4](images/sc3_predict_covar.png)
 
 # Scenario 4: Magnetometer Update + controller
 Now we need to use the magnetometer to improve our filter's performance in estimating the vehicle's heading.
-![Scenario 5](./images/sc4_mag_update.png)
+![Scenario 5](images/sc4_mag_update.png)
 ```
 PASS: ABS(Quad.Est.E.Yaw) was less than 0.120000 for at least 10.000000 seconds
 PASS: ABS(Quad.Est.E.Yaw-0.000000) was less than Quad.Est.S.Yaw for 67% of the time
