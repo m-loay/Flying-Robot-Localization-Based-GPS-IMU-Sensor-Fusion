@@ -6,8 +6,10 @@
 #include "UT.h"
 #include "kalmanFilter.h"
 #include "Math/Angles.h"
+// #define USE_UKE
 using namespace SLR;
 const int QuadEstimatorEKF::QUAD_EKF_NUM_STATES;
+static V calc_covar (const V &sig_pred);
 
 /**
  * @brief QuadEstimatorEKF The constructor for kfApp.
@@ -217,7 +219,34 @@ void QuadEstimatorEKF::Predict(float dt, V3F accel, V3F gyro)
     /**********************************************************************
      *    Perform the predict step
      *********************************************************************/
+#ifndef USE_UKE
     kalmanFilter::predict(ekfState, ekfCov, Q, gFun, g_prime, &predict_inputs);
+#endif
+
+#ifdef USE_UKE
+    /**********************************************************************
+     *    Calculate Sigma Points
+     *********************************************************************/
+    // Calculate Sigma Points
+    ekfCov = ekfCov + Q;
+    M sig = UT::CalculateSigmaPoints(ekfState, ekfCov);
+
+    // Predict Sigma Points
+    M m_sig_pred = UT::PredictSigmaPoints(sig, gFun, &predict_inputs);
+
+    // /**********************************************************************
+    //  *    Calculate Predicted Mean & covariance
+    //  *********************************************************************/
+    //calculate the weights
+    M m_weights = UT::CalculateWeigts(m_sig_pred.cols());
+
+    // Calculate mean of Sigma Points
+    ekfState = UT::PredictMean(m_sig_pred, m_weights);
+
+    // // Calculate Covariance Sigma Points
+    // ekfCov = UT::PredictCovariance(ekfState, m_sig_pred, m_weights, calc_covar);
+
+#endif
 
 }
 
@@ -539,4 +568,24 @@ Eigen::MatrixXf QuadEstimatorEKF::g_prime (const Eigen::VectorXf &mean, const vo
     gPrime(5,6) = dt*(accel.x * RbgPrime(2,0) + accel.y * RbgPrime(2,1) + accel.z * RbgPrime(2,2));   
     
     return gPrime;
+}
+
+/**
+ * @brief calc_covar Helper function fix rounding issues in calculating covariance in prediction step.
+ * 
+ * @param[in] sig_pred_
+ *  The state vector during the calculation of covarince {VectorXd} .
+ * 
+ * @return x_diff
+ *  The state vector after applying the proper rounding to angles{VectorXd}.
+ *
+ */
+static V calc_covar (const V &sig_pred)
+{
+    V x_diff;
+    x_diff = sig_pred;
+    // angle normalization
+    while (x_diff(6)> M_PI) x_diff(3)-=2.*M_PI;
+    while (x_diff(6)<-M_PI) x_diff(3)+=2.*M_PI;
+    return x_diff;
 }

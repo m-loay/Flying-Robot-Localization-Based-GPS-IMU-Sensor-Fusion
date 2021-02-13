@@ -18,7 +18,9 @@
 #define UT_H_
 #include <Eigen/Dense>
 #include <vector>
-
+#include <iostream>
+using M = Eigen::MatrixXf;
+using V = Eigen::VectorXf;
 class UT
 {
 public:
@@ -36,8 +38,8 @@ public:
      * the sigma points matrix  {MatrixXd}.
      * 
      */
-    static Eigen::MatrixXd CalculateSigmaPoints(const Eigen::Ref<const Eigen::VectorXd> &mean,
-                                                const Eigen::Ref<const Eigen::MatrixXd> &covariance)
+    static M CalculateSigmaPoints(const V &mean,
+                                  const M &covariance)
     {
         //extract sizes
         const int numState = mean.size();
@@ -45,10 +47,10 @@ public:
         const int lambda = 3 - numState;
 
         //create sigma points
-        Eigen::MatrixXd sigmaPoints = Eigen::MatrixXd(numState,m_numSigmaPoints);
+        M sigmaPoints = M(numState,m_numSigmaPoints);
 
         // create square root matrix
-        Eigen::MatrixXd L = covariance.llt().matrixL();
+        M L = covariance.llt().matrixL();
 
         // create augmented sigma points
         sigmaPoints.col(0)  = mean;
@@ -77,9 +79,9 @@ public:
      * the sigma points matrix  {MatrixXd}.
      * 
      */
-    static Eigen::MatrixXd CalculateSigmaPoints(const Eigen::Ref<const Eigen::VectorXd> &mean,
-                                                const Eigen::Ref<const Eigen::MatrixXd> &covariance,
-                                                const Eigen::Ref<const Eigen::MatrixXd> &Q)
+    static M CalculateSigmaPoints(const V &mean,
+                                  const M &covariance,
+                                  const M &Q)
     {
         //extract sizes
         const int numState = mean.size();
@@ -89,21 +91,21 @@ public:
         const int diff = numAugState - numState;
 
         // create augmented mean vector
-        Eigen::VectorXd x_aug = Eigen::VectorXd(numAugState);
+        V x_aug = V(numAugState);
         x_aug.fill(0.0);
         x_aug.head(numState) = mean;
 
         // create augmented state covariance
-        Eigen::MatrixXd P_aug = Eigen::MatrixXd(numAugState, numAugState);
+        M P_aug = M(numAugState, numAugState);
         P_aug.fill(0.0);
         P_aug.topLeftCorner(numState, numState) = covariance;
         P_aug.bottomRightCorner(diff , diff) = Q;
 
         //create sigma points
-        Eigen::MatrixXd sigmaPoints = Eigen::MatrixXd(numAugState, numSigmaPoints);
+        M sigmaPoints = M(numAugState, numSigmaPoints);
 
         // create square root matrix
-        Eigen::MatrixXd L = P_aug.llt().matrixL();
+        M L = P_aug.llt().matrixL();
 
         // create augmented sigma points
         sigmaPoints.col(0)  = x_aug;
@@ -123,7 +125,7 @@ public:
      * is kalman data object  {MatrixXd}.
      * 
      * @param[in] model
-     * The propagation model for sigma points  {Eigen::VectorXd(KalmanDataUT &,Eigen::VectorXd&)}.
+     * The propagation model for sigma points  {V(KalmanDataUT &,V&)}.
      * 
 	 * @param[in] sigmaPoints 
      * the kalman gain matrix  {MatrixXd}.
@@ -138,10 +140,10 @@ public:
      * the predicted sigma points {MatrixXd}.
      *
      */
-    static Eigen::MatrixXd PredictSigmaPoints(const Eigen::Ref<const Eigen::MatrixXd> &sigmaPoints, 
-                                              std::function<Eigen::VectorXd(const Eigen::Ref<const Eigen::VectorXd> &,const void *)>model,
-                                              const void *p_args = NULL,
-                                              const int na_aug = 0)
+    static M PredictSigmaPoints(const M &sigmaPoints, 
+                                std::function<V(const V &,const void *)>model,
+                                const void *p_args = NULL,
+                                const int na_aug = 0)
     {
         //extract sizes
         const int numSigmaPoints = sigmaPoints.cols();
@@ -149,10 +151,10 @@ public:
         const int colSize = sigmaPoints.rows();
 
         //create predicted sigma points matrix
-        Eigen::MatrixXd predictedSigmaPoints = Eigen::MatrixXd(numState, numSigmaPoints);
+        M predictedSigmaPoints = M(numState, numSigmaPoints);
 
         //create column vector to get sigma point col.
-        Eigen::VectorXd col(colSize);
+        V col(colSize);
 
         //propagate sigma pointion in dynamic model
         for (int i = 0; i < numSigmaPoints ; i++)
@@ -177,11 +179,11 @@ public:
      * the weights of sigma points {VectorXd}.
      *
      */
-    static Eigen::VectorXd CalculateWeigts(const int numSigmaPoints,
-                                           const int numAug = 0)
+    static V CalculateWeigts(const int numSigmaPoints,
+                             const int numAug = 0)
     {
         const int lambda = 3 - numAug;
-        Eigen::VectorXd weights = Eigen::VectorXd(numSigmaPoints);
+        V weights = V(numSigmaPoints);
         weights.fill(1.0 / static_cast<double>(2.0 * static_cast<double>(lambda + numAug)));
         weights(0) = static_cast<double>(lambda) /static_cast<double>(lambda + numAug);
         return weights;
@@ -201,15 +203,15 @@ public:
      * The mean of state vector {VectorXd}.
      *
      */
-    static Eigen::VectorXd PredictMean(const Eigen::Ref<const Eigen::MatrixXd> &predictedSigmaPoints,
-                                       const Eigen::Ref<const Eigen::VectorXd> &weights)
+    static V PredictMean(const M &predictedSigmaPoints,
+                         const V &weights)
     {
         //extract sizes
         const int numSigmaPoints = predictedSigmaPoints.cols();
         const int numState = predictedSigmaPoints.rows();
 
         //Initialize mean matrix
-        Eigen::VectorXd mean = Eigen::VectorXd(numState);
+        V mean = V(numState);
         mean.fill(0.0);
 
         //calculate the mean
@@ -234,24 +236,24 @@ public:
      * the weights of sigma points  {VectorXd}.
      * 
      * @param[in] helperFunc
-     * The helperFunc to perfrom specific operation on difference vector  {Eigen::VectorXd(Eigen::VectorXd&)}.
+     * The helperFunc to perfrom specific operation on difference vector  {V(V&)}.
      *
      */
-    static Eigen::MatrixXd PredictCovariance(const Eigen::Ref<const Eigen::VectorXd> &mean,
-                                             const Eigen::Ref<const Eigen::MatrixXd> &predictedSigmaPoints,
-                                             const Eigen::Ref<const Eigen::VectorXd> &weights,
-                                             std::function<Eigen::VectorXd(const Eigen::VectorXd&)>helperFunc = NULL)
+    static M PredictCovariance(const V &mean,
+                               const M &predictedSigmaPoints,
+                               const V &weights,
+                               std::function<V(const V&)>helperFunc = NULL)
     {
         //extract sizes
         const int numSigmaPoints = predictedSigmaPoints.cols();
         const int numState = predictedSigmaPoints.rows();
 
         //Initialize covariance matrix
-        Eigen::MatrixXd covariance = Eigen::MatrixXd(numState,numState);
+        M covariance = M(numState,numState);
         covariance.fill(0.0);
         
         // state difference
-        Eigen::VectorXd x_diff = Eigen::VectorXd(numState);
+        V x_diff = V(numState);
         
         for(int i=0 ; i< numSigmaPoints; i++)
         {
@@ -282,7 +284,7 @@ public:
      * number of measurement size {int}.
      * 
      * @param[in] model
-     * The helperFunc to perfrom specific operation on difference vector  {Eigen::VectorXd(Eigen::VectorXd&)}.
+     * The helperFunc to perfrom specific operation on difference vector  {V(V&)}.
      * 
      * @param[in] args
      *  Extra arguments {const void *}.
@@ -291,19 +293,19 @@ public:
      * The tranformed sigma points.
      *
      */
-    static Eigen::MatrixXd TransformPredictedSigmaToMeasurement(const Eigen::Ref<const Eigen::MatrixXd> &predictedSigmaPoints,
-                                                                const int meas_size,
-                                                                std::function<Eigen::VectorXd(const Eigen::Ref<const Eigen::VectorXd>,const void *args )>model,
-                                                                const void *args = NULL)
+    static M TransformPredictedSigmaToMeasurement(const M &predictedSigmaPoints,
+                                                  const int meas_size,
+                                                  std::function<V(const V&,const void *args )>model,
+                                                  const void *args = NULL)
     {
         //extract sizes
         const int numSigmaPoints = predictedSigmaPoints.cols();
 
         //create Predicted measurement matrix
-        Eigen::MatrixXd Zsig = Eigen::MatrixXd(meas_size, numSigmaPoints);
+        M Zsig = M(meas_size, numSigmaPoints);
 
         //create vectore measurement
-        Eigen::VectorXd col(meas_size);
+        V col(meas_size);
 
         for (int i = 0; i < numSigmaPoints ; i++)
         {
@@ -336,23 +338,23 @@ public:
      * the sensor noise matrix  {MatrixXd}.
      * 
     * @param[in] xfun
-     * The helperFunc to perfrom specific operation on difference vector  {Eigen::VectorXd(Eigen::VectorXd&)}.
+     * The helperFunc to perfrom specific operation on difference vector  {V(V&)}.
      *
      * @param[in] zfun
-     * The helperFunc to perfrom specific operation on difference vector for measurement  {Eigen::VectorXd(Eigen::VectorXd&)}.
+     * The helperFunc to perfrom specific operation on difference vector for measurement  {V(V&)}.
      * 
 	 * @return K 
      * the kalman gain matrix  {MatrixXd}.
      * 
      */
-    static Eigen::MatrixXd CalculateKalmanGainUT(const Eigen::Ref<const Eigen::VectorXd> &mean,
-                                                 const Eigen::Ref<const Eigen::VectorXd> &zpred,
-                                                 const Eigen::Ref<const Eigen::VectorXd> &weights,
-                                                 const Eigen::Ref<const Eigen::MatrixXd> &xPredictedSigmaPoints,
-                                                 const Eigen::Ref<const Eigen::MatrixXd> &zPredictedSigmaPoints,
-                                                 const Eigen::Ref<const Eigen::MatrixXd> &S,
-                                                 std::function<Eigen::VectorXd(const Eigen::VectorXd&)>xfun,
-                                                 std::function<Eigen::VectorXd(const Eigen::VectorXd&)>zfun)
+    static M CalculateKalmanGainUT(const V &mean,
+                                   const V &zpred,
+                                   const V &weights,
+                                   const M &xPredictedSigmaPoints,
+                                   const M &zPredictedSigmaPoints,
+                                   const M &S,
+                                   std::function<V(const V&)>xfun,
+                                   std::function<V(const V&)>zfun)
     {
         //extract sizes
         const int numSigmaPoints = xPredictedSigmaPoints.cols();
@@ -360,12 +362,12 @@ public:
         const int numMeas = zpred.rows();
 
         // create matrix for cross correlation Tc
-        Eigen::MatrixXd Tc = Eigen::MatrixXd(numState, numMeas);
+        M Tc = M(numState, numMeas);
         Tc.fill(0.0);
         
         // state difference
-        Eigen::VectorXd x_diff = Eigen::VectorXd(numState);
-        Eigen::VectorXd z_diff = Eigen::VectorXd(numMeas);
+        V x_diff = V(numState);
+        V z_diff = V(numMeas);
         
         for(int i=0 ; i<numSigmaPoints; i++)
         {
@@ -393,7 +395,7 @@ public:
             Tc = Tc + weights(i) * x_diff * z_diff.transpose();
         }
         // Kalman gain K;
-        Eigen::MatrixXd K = Tc * S.inverse();
+        M K = Tc * S.inverse();
         return K;        
     }
 
@@ -413,11 +415,11 @@ public:
 	 * @param[in] K 
      * the kalman gain matrix  {MatrixXd}.
      */
-    static void updateUT(Eigen::VectorXd & mean,
-                         Eigen::MatrixXd & covariance,
-                         const Eigen::Ref<const Eigen::VectorXd> &Innovation,
-                         const Eigen::Ref<const Eigen::MatrixXd> &S,
-                         const Eigen::Ref<const Eigen::MatrixXd> &K)
+    static void updateUT(V & mean,
+                         M & covariance,
+                         const V &Innovation,
+                         const M &S,
+                         const M &K)
     {
         // update state mean and covariance
         mean = mean + K * Innovation;
