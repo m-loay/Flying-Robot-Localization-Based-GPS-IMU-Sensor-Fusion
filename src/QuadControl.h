@@ -37,6 +37,7 @@ public:
   float kpVelXY, kpVelZ;
   float kpBank, kpYaw;
   float KiPosZ;
+  float d_prep;
   V3F kpPQR;
   
   // limits & saturations
