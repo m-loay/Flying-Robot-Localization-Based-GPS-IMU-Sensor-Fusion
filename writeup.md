@@ -85,10 +85,10 @@ The magnetometer update shall be updated as follows:
 ![update](images/update.PNG)
 
 
-The update  function for magnometer is impelemented in `UpdateFromMag` can be found in [line 362](src/QuadEstimatorEKF.cpp#362) in `QuadEstimatorEKF.cpp`.
+The update  function for magnometer is impelemented in `UpdateFromMag` can be found in [line 326](src/QuadEstimatorEKF.cpp#L326) in `QuadEstimatorEKF.cpp`.
 
 The `update` function can be found in [line 110](src/kalmanFilter.h#L110) in `kalmanFilter.h`.
-And `CalculateKalmanGain` function can be found in [line 80](src/kalmanFilter.h#L110) in `kalmanFilter.h`.
+And `CalculateKalmanGain` function can be found in [line 80](src/kalmanFilter.h#L80) in `kalmanFilter.h`.
 
 ![Scenario 5](images/sc4_mag_update.PNG)
 ```
@@ -111,7 +111,7 @@ The GPS update shall be updated as follows:
 The update  function for magnometer is impelemented in`UpdateFromGPS` can be found in [line 268](src/QuadEstimatorEKF.cpp#268) in `QuadEstimatorEKF.cpp`.
 
 The `update` function can be found in [line 110](src/kalmanFilter.h#L110) in `kalmanFilter.h`.
-And `CalculateKalmanGain` function can be found in [line 80](src/kalmanFilter.h#L110) in `kalmanFilter.h`.
+And `CalculateKalmanGain` function can be found in [line 80](src/kalmanFilter.h#L80) in `kalmanFilter.h`.
 
 3. Replace `QuadController.cpp` with the controller you impelemented in  last project and replace `QuadControlParams.txt` with the control parameters of last project.
 
