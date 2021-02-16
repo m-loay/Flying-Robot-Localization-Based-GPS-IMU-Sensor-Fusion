@@ -77,14 +77,18 @@ Now we need to use the magnetometer to improve our filter's performance in estim
 
 The magnetometer update shall be updated as follows:
 1.Prepare the senosr model (measurement and predicted measurements)
+
 ![magnetometer](images/magnetometer.PNG)
 
 2.Perform Update step using previous sensor model
+
 ![update](images/update.PNG)
 
-The update  function for magnometer is impelemented in `UpdateFromMag` can be found in [line 326](src/QuadEstimatorEKF.cpp#362) in `QuadEstimatorEKF.cpp`.
 
-And the generic update can be found in `kalmanFilter.h` in function `update` [line 110](src/kalmanFilter.h#110) and the `CalculateKalmanGain` function can be found in the same file [line 80](src/kalmanFilter.h#80)
+The update  function for magnometer is impelemented in `UpdateFromMag` can be found in [line 362](src/QuadEstimatorEKF.cpp#362) in `QuadEstimatorEKF.cpp`.
+
+The `update` function can be found in [line 110](src/kalmanFilter.h#L110) in `kalmanFilter.h`.
+And `CalculateKalmanGain` function can be found in [line 80](src/kalmanFilter.h#L110) in `kalmanFilter.h`.
 
 ![Scenario 5](images/sc4_mag_update.PNG)
 ```
@@ -106,7 +110,8 @@ The GPS update shall be updated as follows:
 
 The update  function for magnometer is impelemented in`UpdateFromGPS` can be found in [line 268](src/QuadEstimatorEKF.cpp#268) in `QuadEstimatorEKF.cpp`.
 
-And the generic update can be found in `kalmanFilter.h` in function `update` [line 110](src/kalmanFilter.h#110) and the `CalculateKalmanGain` function can be found in the same file [line 80](src/kalmanFilter.h#80)
+The `update` function can be found in [line 110](src/kalmanFilter.h#L110) in `kalmanFilter.h`.
+And `CalculateKalmanGain` function can be found in [line 80](src/kalmanFilter.h#L110) in `kalmanFilter.h`.
 
 3. Replace `QuadController.cpp` with the controller you impelemented in  last project and replace `QuadControlParams.txt` with the control parameters of last project.
 
