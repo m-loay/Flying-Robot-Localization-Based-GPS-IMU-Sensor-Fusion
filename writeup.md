@@ -106,10 +106,11 @@ The GPS update shall be updated as follows:
 ![gps](images/gps_model.PNG)
 
 2.Perform Update step using previous sensor model
+
 ![update](images/update.PNG)
 
-The update  function for magnometer is impelemented in`UpdateFromGPS` can be found in [line 268](src/QuadEstimatorEKF.cpp#268) in `QuadEstimatorEKF.cpp`.
 
+The update  function for magnometer is impelemented in`UpdateFromGPS` can be found in [line 268](src/QuadEstimatorEKF.cpp#L268) in `QuadEstimatorEKF.cpp`.
 The `update` function can be found in [line 110](src/kalmanFilter.h#L110) in `kalmanFilter.h`.
 And `CalculateKalmanGain` function can be found in [line 80](src/kalmanFilter.h#L80) in `kalmanFilter.h`.
 
