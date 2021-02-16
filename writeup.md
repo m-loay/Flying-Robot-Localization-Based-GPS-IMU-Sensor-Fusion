@@ -49,19 +49,19 @@ The task consist of two parts: implement the prediction step for the EKF and upd
 1. The g function(The state transition) that calculate the mean from prediction model, which take the readings from gyroscope, accelerometer, rotation matrix R_gb matrix ,previous estimated roll and previous estimated pitch in equation(48),(49) as follows:
 ![pred_model](images/pred_model.PNG)
 
-The g function is impelemented in `gFun` can be found in [line 494](src/QuadEstimatorEKF.cpp#494) in `QuadEstimatorEKF.cpp`.
+The g function is impelemented in `gFun` can be found in [line 494](src/QuadEstimatorEKF.cpp#L494) in `QuadEstimatorEKF.cpp`.
 
 2. The g prime function(The derivative state transition[jacobians]) that calculate the G matrix to calculate the covriance matrix P. Which take the readings from gyroscope, accelerometer, rotation matrix R_gb matrix ,previous estimated roll and previous estimated pitch in equation(51),(52) as follows:
 
 ![jacobian](images/jacobian.PNG)
 
-The g prime function is impelemented in `g_prime` can be found in [line 536](src/QuadEstimatorEKF.cpp#536) in `QuadEstimatorEKF.cpp`.
+The g prime function is impelemented in `g_prime` can be found in [line 536](src/QuadEstimatorEKF.cpp#L536) in `QuadEstimatorEKF.cpp`.
 
 3. From Algorithm 2 the predict function shall implemented as follows:
 
 ![predict](images/predict.PNG)
 
-The predict function is impelemented in `Predict` can be found in [line 208](src/QuadEstimatorEKF.cpp#208) in `QuadEstimatorEKF.cpp`.
+The predict function is impelemented in `Predict` can be found in [line 208](src/QuadEstimatorEKF.cpp#L208) in `QuadEstimatorEKF.cpp`.
 
 
 Below the screenshot after implementing the first part
