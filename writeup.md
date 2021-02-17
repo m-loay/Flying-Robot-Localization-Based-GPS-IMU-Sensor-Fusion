@@ -93,7 +93,7 @@ And `CalculateKalmanGain` function can be found in [line 80](src/kalmanFilter.h#
 ![Scenario 5](images/sc4_mag_update.PNG)
 ```
 PASS: ABS(Quad.Est.E.Yaw) was less than 0.120000 for at least 10.000000 seconds
-PASS: ABS(Quad.Est.E.Yaw-0.000000) was less than Quad.Est.S.Yaw for 67% of the time
+PASS: ABS(Quad.Est.E.Yaw-0.000000) was less than Quad.Est.S.Yaw for 76% of the time
 ```
 
 ## Scenario 5: Closed Loop + GPS Update 

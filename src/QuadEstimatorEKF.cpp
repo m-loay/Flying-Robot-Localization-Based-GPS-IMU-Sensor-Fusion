@@ -278,12 +278,7 @@ void QuadEstimatorEKF::UpdateFromGPS(V3F pos, V3F vel)
     z(4) = vel.y;
     z(5) = vel.z;
 
-    zFromX(0) = ekfState(0);
-    zFromX(1) = ekfState(1);
-    zFromX(2) = ekfState(2);
-    zFromX(3) = ekfState(3);
-    zFromX(4) = ekfState(4);
-    zFromX(5) = ekfState(5);
+    zFromX = ekfState.head(6);
 
     /**********************************************************************
      *    set output matrix H
